@@ -1,0 +1,676 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmplan CRM Migration - Executive Summary</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4B0082 0%, #663399 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(75, 0, 130, 0.2);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .telus-logo {
+            background: white;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-text {
+            color: #4B0082;
+            font-weight: bold;
+        }
+
+        .logo-main {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+
+        .logo-sub {
+            font-size: 14px;
+            color: #666;
+            border-left: 2px solid #00C853;
+            padding-left: 8px;
+        }
+
+        .logo-accent {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, #00C853, #4CAF50);
+            border-radius: 50%;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .header-content h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header-content .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 15px;
+            border-left: 4px solid #00C853;
+            background: #f8fff8;
+        }
+
+        .status-item.amber {
+            border-left-color: #FF9800;
+            background: #fff8f0;
+        }
+
+        .status-label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #4B0082;
+        }
+
+        .card h2 {
+            color: #4B0082;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+        }
+
+        .card h2::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #00C853;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .accomplishments-list {
+            list-style: none;
+        }
+
+        .accomplishments-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .accomplishments-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00C853;
+            font-weight: bold;
+        }
+
+        .priorities-list {
+            list-style: none;
+        }
+
+        .priorities-list li {
+            padding: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .priorities-list li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #4B0082;
+        }
+
+        .risk-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .risk-item {
+            background: #fff5f5;
+            border-left: 4px solid #FF5722;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .risk-item.medium {
+            background: #fff8f0;
+            border-left-color: #FF9800;
+        }
+
+        .risk-item.low {
+            background: #f8fff8;
+            border-left-color: #4CAF50;
+        }
+
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .risk-severity {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .severity-medium {
+            background: #FF9800;
+            color: white;
+        }
+
+        .severity-low {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .timeline-visual {
+            background: linear-gradient(90deg, #00C853 60%, #FF9800 40%);
+            height: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .timeline-visual::after {
+            content: '60% Complete';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .milestone-timeline {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #4B0082;
+        }
+
+        .milestone {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .milestone.completed {
+            background: #f0fff4;
+            border-left: 4px solid #00C853;
+        }
+
+        .milestone.current {
+            background: #fff8f0;
+            border-left: 4px solid #FF9800;
+        }
+
+        .milestone.upcoming {
+            background: #f5f5f5;
+            border-left: 4px solid #ccc;
+        }
+
+        .milestone-date {
+            font-weight: bold;
+            color: #4B0082;
+            min-width: 100px;
+            margin-right: 15px;
+        }
+
+        .milestone-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .milestone-desc {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .workstream-progress {
+            margin-bottom: 20px;
+        }
+
+        .workstream-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .workstream-name {
+            font-weight: 600;
+            color: #4B0082;
+        }
+
+        .workstream-percentage {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .progress-bar {
+            height: 25px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid, .chart-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .telus-logo {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .logo-sub {
+                border-left: none;
+                border-top: 2px solid #00C853;
+                padding-left: 0;
+                padding-top: 5px;
+                margin-top: 5px;
+            }
+        }
+    </style>
+
+    <script>
+      
+      const files = {
+        
+      }
+    
+
+
+      window.fs = {}
+      window.fs.readFile = (fileName) => {
+        // return array buffer
+        return new Promise((resolve) => {
+          const content = files[fileName]
+          const decoded = atob(content)
+          const arr = new Uint8Array(decoded.length)
+          for (let i = 0; i < decoded.length; i++) {
+            arr[i] = decoded.charCodeAt(i)
+          }
+          resolve(arr)
+        })
+      }
+    </script>
+    </head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-section">
+                <div class="telus-logo">
+                    <div class="logo-text">
+                        <div class="logo-main">TELUS</div>
+                        <div class="logo-sub">Agriculture & Consumer Goods</div>
+                    </div>
+                    <div class="logo-accent">🌱</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.9em; opacity: 0.8;">Executive Summary</div>
+                    <div style="font-size: 0.8em; opacity: 0.7;">June 26, 2025</div>
+                </div>
+            </div>
+            <div class="header-content">
+                <h1>Farmplan CRM Migration</h1>
+                <div class="subtitle">Transitioning Sales Operations to TAC CRM</div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">Project Status</div>
+                <div class="status-value">In Progress</div>
+            </div>
+            <div class="status-item amber">
+                <div class="status-label">Target Go-Live</div>
+                <div class="status-value">Sept 1, 2025</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Progress</div>
+                <div class="status-value">60% Complete</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Days Remaining</div>
+                <div class="status-value">67 Days</div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="card">
+                <h2>Work Stream Progress</h2>
+                <div class="workstream-progress">
+                    <div class="workstream-header">
+                        <span class="workstream-name">Data Migration & Mapping</span>
+                        <span class="workstream-percentage">75%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 75%; background: linear-gradient(90deg, #00C853, #4CAF50);">75% Complete</div>
+                    </div>
+                </div>
+
+                <div class="workstream-progress">
+                    <div class="workstream-header">
+                        <span class="workstream-name">Product SKU Alignment</span>
+                        <span class="workstream-percentage">40%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 40%; background: linear-gradient(90deg, #FF9800, #FFB74D);">40% Complete</div>
+                    </div>
+                </div>
+
+                <div class="workstream-progress">
+                    <div class="workstream-header">
+                        <span class="workstream-name">User Training & UAT</span>
+                        <span class="workstream-percentage">25%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 25%; background: linear-gradient(90deg, #4B0082, #663399);">25% Complete</div>
+                    </div>
+                </div>
+
+                <div class="workstream-progress">
+                    <div class="workstream-header">
+                        <span class="workstream-name">System Integration</span>
+                        <span class="workstream-percentage">85%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%; background: linear-gradient(90deg, #00C853, #4CAF50);">85% Complete</div>
+                    </div>
+                </div>
+
+                <div class="workstream-progress">
+                    <div class="workstream-header">
+                        <span class="workstream-name">Process Alignment</span>
+                        <span class="workstream-percentage">60%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%; background: linear-gradient(90deg, #00C853, #4CAF50);">60% Complete</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Risk Assessment</h2>
+                <div class="chart-container">
+                    <canvas id="riskChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2>Project Overview</h2>
+                <p>This initiative transitions Farmplan sales teams from Prospect 365 to TAC CRM for unified customer management and TAC sales process alignment, with close coordination with Service teams to maintain effective customer support and enable proper asset and entitlement creation.</p>
+                
+                <div class="timeline-visual"></div>
+            </div>
+
+            <div class="milestone-timeline">
+                <h2 style="color: #4B0082; margin-bottom: 20px;">Key Milestones</h2>
+                
+                <div class="milestone completed">
+                    <div class="milestone-date">Jun 26</div>
+                    <div>
+                        <div class="milestone-title">✓ Data Source Identification</div>
+                        <div class="milestone-desc">Prospect 365 and Opera systems identified</div>
+                    </div>
+                </div>
+
+                <div class="milestone current">
+                    <div class="milestone-date">Jul 15-19</div>
+                    <div>
+                        <div class="milestone-title">🔄 Data Mapping Sessions</div>
+                        <div class="milestone-desc">Farmplan Sales team alignment sessions</div>
+                    </div>
+                </div>
+
+                <div class="milestone upcoming">
+                    <div class="milestone-date">Aug 1</div>
+                    <div>
+                        <div class="milestone-title">⏳ Data Migration</div>
+                        <div class="milestone-desc">Complete data transfer to TAC CRM</div>
+                    </div>
+                </div>
+
+                <div class="milestone upcoming">
+                    <div class="milestone-date">Aug 15</div>
+                    <div>
+                        <div class="milestone-title">⏳ UAT & Training</div>
+                        <div class="milestone-desc">User acceptance testing and training</div>
+                    </div>
+                </div>
+
+                <div class="milestone upcoming">
+                    <div class="milestone-date">Sep 1</div>
+                    <div>
+                        <div class="milestone-title">🎯 Go-Live</div>
+                        <div class="milestone-desc">Full production deployment</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2>Key Accomplishments</h2>
+                <ul class="accomplishments-list">
+                    <li><strong>Data Source Identification:</strong> Successfully identified Prospect 365 and Opera as primary systems for customer data extraction</li>
+                    <li><strong>Project Planning:</strong> Scheduled data mapping sessions with Farmplan Sales team (July 15-19)</li>
+                    <li><strong>System Access:</strong> Onboarded four Farmplan sales team members to TAC CRM UAT & Production environment</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Next 2 Weeks Priorities</h2>
+                <ul class="priorities-list">
+                    <li>Finalize Farmplan 365 Data import requirements</li>
+                    <li>Map Prospect 365 data to TAC CRM structure</li>
+                    <li>Activate additional Farmplan users in TAC CRM</li>
+                    <li>Obtain finalized Farmplan Customer Master</li>
+                    <li>Establish Product Master requirements sessions</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="risk-section">
+            <h2 style="color: #4B0082; margin-bottom: 20px;">Key Risks & Issues</h2>
+            
+            <div class="risk-item medium">
+                <div class="risk-header">
+                    <strong>Master Product SKU Hierarchy Gap</strong>
+                    <span class="risk-severity severity-medium">Medium Risk</span>
+                </div>
+                <p>The Master Product SKU Hierarchy currently lacks Farmplan Product SKUs, creating a critical dependency that prevents sales team transition to TAC CRM.</p>
+            </div>
+
+            <div class="risk-item low">
+                <div class="risk-header">
+                    <strong>Prospect 365 Data Export Capability</strong>
+                    <span class="risk-severity severity-low">Low Risk</span>
+                </div>
+                <p>Farmplan team lacks a Prospect 365 administrator capable of performing data exports, potentially creating a bottleneck for migration process.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Key Scope Areas</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div>
+                    <h3 style="color: #4B0082; margin-bottom: 10px;">CRM Migration & Process Alignment</h3>
+                    <p>Execute transition of Farmplan sales teams to TAC CRM and ensure complete alignment with established TAC sales processes.</p>
+                </div>
+                <div>
+                    <h3 style="color: #4B0082; margin-bottom: 10px;">Data Integrity</h3>
+                    <p>Cross-reference Farmplan and Opera customer data to prevent duplicates and ensure proper data transformation.</p>
+                </div>
+                <div>
+                    <h3 style="color: #4B0082; margin-bottom: 10px;">Product SKU Alignment</h3>
+                    <p>Consolidate Farmplan product SKUs to ~150 key items and integrate with Master SKU database.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Next update scheduled for the week of July 10, 2025
+        </div>
+    </div>
+
+    <script>
+        // Risk Assessment Chart
+        const riskCtx = document.getElementById('riskChart').getContext('2d');
+        new Chart(riskCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+                datasets: [{
+                    data: [1, 1, 0],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#FF9800',
+                        '#F44336'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
